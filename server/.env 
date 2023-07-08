@@ -1,0 +1,6 @@
+#Development port
+DEV_PORT=3000
+
+#Twitch Auth
+CLIENT_ID=w5ypkn5g7oforducsylian6h92rkuf
+CLIENT_SEC=j2x1w6hb2gckt35872dukrb0d0iluq
