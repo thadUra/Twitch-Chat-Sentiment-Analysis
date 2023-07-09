@@ -1,11 +1,3 @@
-// var express = require('express');
-// var app = express();
-// app.get('/', function (req, res) {
-//   res.send('Hello World!');
-// });
-// app.listen(3000, function () {
-//   console.log('Example app listening on port 3000!');
-// });
 // const tmi = require('tmi.js');
 
 // const client = new tmi.Client({
@@ -33,10 +25,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/message", (req, res) => {
-  res.json({ message: "Hello from server!" });
+// HTTP Stuff for Socket
+const http = require("http");
+const { Server } = require("socket.io");
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
 });
 
-app.listen(8000, () => {
-  console.log(`Server is running on port 8000.`);
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("send_message", (data) => {
+    const sentiment = {message: `received msg from ${socket.id}`};
+    socket.broadcast.emit("receive_sentiment", sentiment);
+  });
+
+});
+
+server.listen(3001, () => {
+  console.log(`Server is running on port 3001.`);
 });

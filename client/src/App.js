@@ -1,46 +1,48 @@
-// import logo from './logo.svg';
-// import './App.css';
+import './App.css';
+import io from 'socket.io-client'
+import { useEffect } from 'react';
 
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
-// export default App;
-
-import React, { useState, useEffect } from "react";
-import "./App.css";
+const socket = io.connect("http://localhost:3001"); 
 
 function App() {
-  const [message, setMessage] = useState("");
+
+  const getSentiment = () => {
+    socket.emit("send_message", {message: "hello!"});
+  };
 
   useEffect(() => {
-    fetch("http://localhost:8000/message")
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message));
-  }, []);
+    socket.on("receive_sentiment", (data) => {
+      alert(`Received ${data.message}`);
+    });
+  }, [socket] );
 
   return (
     <div className="App">
-      <h1>{message}</h1>
+      <input placeholder="Streamer" />
+      <button onClick={getSentiment}>Get Sentiment</button>
     </div>
   );
 }
 
-export default App
+export default App;
+
+// import React, { useState, useEffect } from "react";
+// import "./App.css";
+
+// function App() {
+//   const [message, setMessage] = useState("");
+
+//   useEffect(() => {
+//     fetch("http://localhost:8000/message")
+//       .then((res) => res.json())
+//       .then((data) => setMessage(data.message));
+//   }, []);
+
+//   return (
+//     <div className="App">
+//       <h1>{message}</h1>
+//     </div>
+//   );
+// }
+
+// export default App
