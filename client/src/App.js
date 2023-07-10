@@ -1,48 +1,35 @@
 import './App.css';
 import io from 'socket.io-client'
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const socket = io.connect("http://localhost:3001"); 
 
 function App() {
 
-  const getSentiment = () => {
-    socket.emit("send_message", {message: "hello!"});
-  };
+  // States
+  const [ streamer, setStreamer ] = useState("");
 
-  useEffect(() => {
-    socket.on("receive_sentiment", (data) => {
-      console.log(`Received ${data.message}`);
-    });
-  });
+
+  // Emit Messages
+  const analyze = (event) => {
+    event.preventDefault();
+    socket.emit("analyze", {streamer: `${streamer}`});
+  }
+
+  // useEffect(() => {
+  //   socket.on("new_msg", (data) => {
+  //     console.log(`Received ${data.text}`);
+  //   });
+  // });
 
   return (
     <div className="App">
-      <input placeholder="Streamer" />
-      <button onClick={getSentiment}>Get Sentiment</button>
+      <form onSubmit={analyze}>
+        <input type="text" placeholder="Streamer" value={streamer} onChange={(e) => setStreamer(e.target.value)} />
+        <button type="submit">Analyze</button>
+      </form>
     </div>
   );
 }
 
 export default App;
-
-// import React, { useState, useEffect } from "react";
-// import "./App.css";
-
-// function App() {
-//   const [message, setMessage] = useState("");
-
-//   useEffect(() => {
-//     fetch("http://localhost:8000/message")
-//       .then((res) => res.json())
-//       .then((data) => setMessage(data.message));
-//   }, []);
-
-//   return (
-//     <div className="App">
-//       <h1>{message}</h1>
-//     </div>
-//   );
-// }
-
-// export default App
