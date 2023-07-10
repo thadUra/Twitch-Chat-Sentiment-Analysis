@@ -12,9 +12,9 @@ function App() {
 
   useEffect(() => {
     socket.on("receive_sentiment", (data) => {
-      alert(`Received ${data.message}`);
+      console.log(`Received ${data.message}`);
     });
-  }, [socket] );
+  });
 
   return (
     <div className="App">
