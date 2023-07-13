@@ -1,33 +1,64 @@
 import './App.css';
+import { useState } from 'react'
 import io from 'socket.io-client'
-import { useEffect, useState } from 'react';
-
-const socket = io.connect("http://localhost:3001"); 
+import Landing from './Landing.js'
+import Connection from './Connection.js'
+import Analysis from './Analysis.js'
 
 function App() {
-
-  // States
-  const [ streamer, setStreamer ] = useState("");
-
-
-  // Emit Messages
-  const analyze = (event) => {
-    event.preventDefault();
-    socket.emit("analyze", {streamer: `${streamer}`});
-  }
-
-  // useEffect(() => {
-  //   socket.on("new_msg", (data) => {
-  //     console.log(`Received ${data.text}`);
-  //   });
-  // });
+  
+  const [ activePage, setActivePage ] = useState(0);
+  const [ streamer, setStreamer ] = useState('');
+  const [ direction, setDirection ] = useState('landing');
+  const [ socket, setSocket ] = useState(
+    io('http://localhost:3001', {
+      autoConnect:false,
+      reconnection:false
+    })
+  );
 
   return (
     <div className="App">
-      <form onSubmit={analyze}>
-        <input type="text" placeholder="Streamer" value={streamer} onChange={(e) => setStreamer(e.target.value)} />
-        <button type="submit">Analyze</button>
-      </form>
+      <Landing
+        isActive = { activePage === 0 } 
+        performAnalysis = { (data) => {
+            setStreamer(data);
+            setDirection('analyze');
+            setActivePage(1);
+          } 
+        }
+      ></Landing>
+      <Connection
+        isActive = { activePage === 1 }
+        direction= { direction }
+        goBack = { () => {
+            setSocket(
+              io('http://localhost:3001', {
+                autoConnect:false,
+                reconnection:false
+              })
+            );
+            setDirection('landing');
+            setActivePage(0);
+          }
+        }
+        performAnalysis = { (data) => {
+            setSocket(data);
+            setActivePage(2); 
+          }
+        }
+        socket = { socket }
+      ></Connection>
+      <Analysis
+        isActive = { activePage === 2}
+        streamer = { streamer }
+        socket = { socket }
+        goBack = { () => {
+            setActivePage(1);
+            setDirection('landing');
+          }
+        }
+      ></Analysis>
     </div>
   );
 }

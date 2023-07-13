@@ -1,24 +1,33 @@
-// import React, { Component, useEffect } from 'react';
-// import io from 'socket.io-client'
+import { useState } from 'react';
 
-// const socket = io.connect("http://localhost:3001"); 
+function Landing ( {
+    isActive,
+    performAnalysis
+  } ) {
+  
+    const [ streamer, setStreamer ] = useState("");
+  
+    const analyze = () => {
+      if(streamer !== "") {
+        performAnalysis(streamer);
+        setStreamer("");
+      }
+      // Fetch if live
+    };
+  
+    return (
+      <div>
+        {isActive ? (
+          <div>
+            <h1>Streamer Sentiment</h1>
+            <input onKeyDown={ (e) => { if( e.key === 'Enter' ) analyze(); }} type="text" placeholder="Streamer" value={streamer} onChange={ (e) => setStreamer(e.target.value)} />
+            <button onClick={analyze}> Analyze </button>
+          </div>
+        ) : (
+          <></>
+        )}
+      </div>
+    );
+}
 
-// class Landing extends Component {
-//     render () {
-//         useEffect(() => {
-//             socket.on("receive_sentiment", (data) => {
-//                 console.log(`Received ${data.message}`);
-//             });
-//         });
-//         return(
-//             <div class="landing">
-//                 <h1>Twitch Live Sentiment Analysis</h1>
-//                 <input placeholder="Streamer" />
-//                 <button>Analyze</button>
-//             </div>
-//         )
-//     }
-
-// }
-
-// export default Landing;
+export default Landing;
