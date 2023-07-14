@@ -11,7 +11,9 @@ const cors = require("cors");
 const app = express();
 const http = require("http");
 const { Server } = require("socket.io");
-const chat = requrie("./chat.js")
+const chat = require("./chat.js")
+const google = require('./googleAnalyze.js')
+const tmi = require('tmi.js');
 
 /* Init app and server */
 app.use(cors());
@@ -25,11 +27,19 @@ const io = new Server(server, {
   },
 });
 
+var client = null;
+
 /* Web Socket Functionality */
 io.on("connection", (socket) => {
 
-  var client = null;
   var msgCount = 0;
+  console.log(`User ${socket.id} connected...`);
+  const client = new tmi.Client({
+    connection: {
+      secure: true,
+      reconnect: true,
+    },
+  });
 
   /**
    *  RECEIVE: Start
@@ -37,38 +47,38 @@ io.on("connection", (socket) => {
    *  @usage Initiates analysis of streamer
    */
   socket.on("start", (streamer) => {
-    try {
-      client = chat.connectStream(streamer);
-    } catch (err) {
-      console.log(err);
-    }
-  });
 
-  /**
-   *  RECEIVE: Disconnect
-   *  @usage Detects client disconnection to close client
-   */
-  socket.on("disconnect", (reason) => {
-    console.log(`Socket ${socket.id} disconnected: ${reason}`);
-    if( client !== null ) client.disconnect();
-    msgCount = 0;
-  });
-
-  /* Functionality for once twitch client is established */
-  if( client !== null ) {
+    /* Connect to stream with client */
+    client.connect().then(() => {
+      client.join(streamer).then(() => {
+        console.log(`Connected to streamer: ${streamer}`);
+      }).catch((err) => {
+        console.log(`Error connecting to ${streamer}: ${err}`);
+      })
+    }).catch((err) => {
+      console.log(`Error connecting to ${streamer}: ${err}`);
+    });
 
     /**
      *  RECEIVE: Message
      *  @usage Grab twitch chat message and send it to sentiment APIs
      */
     client.on("message", (_channel, tags, message, _self) => {
-      console.log(`${msgCount++} ==> ${tags['display-name']}: ${message}`);
+      // console.log(`${msgCount++} ==> ${tags['display-name']}: ${message}`);
       var data = {
         count: msgCount,
         msg: message
       }
-      // HANDLE SNETIMENT ANALYSIS HERE
+      msgCount += 1;
       socket.emit("new_msg", data);
+      google.sentiment(message);
+      //amazon.sentiment(message);
+      // data = {
+      //   google: 
+      //   amazon:
+      //   combined:
+      // }
+      // socket.emit("new_sentiment", data);
     })
 
     /**
@@ -77,7 +87,6 @@ io.on("connection", (socket) => {
      */
     client.on('disconnected', (reason) => {
       console.log(`Twitch Client disconnected: ${reason}`);
-      client = null;
     });
     
     /**
@@ -86,9 +95,18 @@ io.on("connection", (socket) => {
      */
     client.on("unhost", (channel, _viewers) => {
       console.log(`${channel} ended the stream.`);
-      client = null;
     });
 
-  }
+  });
+
+  /**
+   *  RECEIVE: Disconnect
+   *  @usage Detects client disconnection to close client
+   */
+  socket.on("disconnect", (reason) => {
+    console.log(`Socket ${socket.id} disconnected: ${reason}`);
+    if( client.readyState() !== "CLOSED" || client.readyState() !== "CLOSING" ) client.disconnect();
+    msgCount = 0;
+  });
 
 });

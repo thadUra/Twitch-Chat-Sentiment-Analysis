@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import 'socket.io-client'
 
 /* MAX ATTEMPTS TO TRY CONNECTING TO WEB SOCKET */
