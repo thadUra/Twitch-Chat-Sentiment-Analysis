@@ -3,7 +3,7 @@ const language = require('@google-cloud/language');
 
 const client = new language.LanguageServiceClient(
     options = {
-        projectId: process.env.GOOGLE_ID
+        projectId: process.env.GOOGLE_ID,
     }
 );
 

@@ -35,9 +35,9 @@ function Landing ( {
         let isLive = await checkLive(streamer);
         console.log(`isLive: ${isLive}`)
         if( isLive !== 1 ) {
-          if( isLive === 0 ) setErrorStr(`${streamer} is not live.`);
-          else if( isLive === 2) setErrorStr(`Twitch Error. Please try again.`);
-          else setErrorStr(`User does not exist. Please try again.`);
+          if( isLive === 0 ) setErrorStr(`${streamer} is not live`);
+          else if( isLive === 2) setErrorStr(`Please try again`);
+          else setErrorStr(`User does not exist`);
           setValidate(false);
           setLoading(false);
         }
@@ -63,21 +63,22 @@ function Landing ( {
               justifyContent="center"
             >
               <Typography variant="h2">
-                <Box sx={{ letterSpacing: 2, pb: 5}}>Streamer Sentiment</Box>
+                <Box sx={{ letterSpacing: 4, pb: 5}}>Streamer Sentiment</Box>
               </Typography>
               <Typography variant="h7">
                 <Box sx={{ letterSpacing: 3, pb: 5, pr: 3, pl: 3}} maxWidth="50vh">Perform sentiment analysis on your favorite Twitch streamer</Box>
               </Typography>
               <Box
                 display="flex"
-                flexDirection="column"
+                flexDirection={{xs: "column", sm: "row"}}
                 alignItems="center"
                 justifyContent="center"
               >
-                <Box sx={{ pr: 3 , pb: 3}}>
+                <Box sx={{ pr: 3, pb: 3 }}>
                   <TextField
+                    sx={{width: { xs: 200, md: 350 }}}
                     error={!validate}
-                    helperText={errorStr}
+                    label={errorStr}
                     variant="outlined" 
                     onKeyDown={ (e) => { if( e.key === 'Enter' ) analyze(); }} 
                     type="text" 
@@ -86,14 +87,15 @@ function Landing ( {
                     onChange={ (e) => setStreamer(e.target.value)} 
                   />
                 </Box>
-                <Box sx={{ pr: 3 , pb: 3}}>
+                <Box sx={{ pr: 3, pb: 3 }}>
                   <LoadingButton
                     color="primary"
                     onClick={analyze}
                     loading={loading}
                     loadingPosition="start"
                     startIcon={<ArrowOutwardSharpIcon />}
-                    varient="outlined"
+                    variant="contained"
+                    size="large"
                   > <span>Analyze</span>
                   </LoadingButton>
                 </Box>

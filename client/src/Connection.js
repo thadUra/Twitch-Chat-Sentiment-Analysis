@@ -1,8 +1,17 @@
 import { useState, useRef } from 'react'
 import 'socket.io-client'
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme.js'
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import ReplayIcon from '@mui/icons-material/Replay';
+import Button from '@mui/material/Button';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import Fab from '@mui/material/Fab';
+import Typography from '@mui/material/Typography';
 
 /* MAX ATTEMPTS TO TRY CONNECTING TO WEB SOCKET */
-const MAX_RECONNECT = 10;
+const MAX_RECONNECT = 5;
 let reconnectAttempt = 0;
 
 function Connection ( {
@@ -13,6 +22,7 @@ function Connection ( {
     socket
   }) {
     
+    const [ status, setStatus ] = useState("connecting to web socket");
     /**
      *  0 -> Disconnected
      *  1 -> Connected
@@ -28,6 +38,7 @@ function Connection ( {
       if( socket.connected ) {
         console.log(`Socket ${socket.id} connected...`);
         setConection(1);
+        goForwardAnalysis();
       }
       else {
         console.log(`Failed to connect...`);
@@ -42,11 +53,15 @@ function Connection ( {
           if( socket.connected ) {
             console.log(`Socket ${socket.id} connected from retry...`);
             setConection(1);
+            goForwardAnalysis();
           }
           else {
             console.log(`Failed to connect from retry...`);
             if( reconnectAttempt < MAX_RECONNECT ) retry();
-            else setConection(0);
+            else {
+              setConection(0);
+              setStatus("failed to connect")
+            }
           }
         }
       }, 2500);
@@ -59,7 +74,9 @@ function Connection ( {
       setConection(2);
     };
     const restartConnect = () => {
+      setStatus("reattempting connection");
       reconnectAttempt = 0;
+      setConection(2);
       connect();
     }
 
@@ -78,25 +95,42 @@ function Connection ( {
     return (
       <div>
         {isActive ? (
-          <div>
-            <p>connection status</p>
-            {connection === 1 ? (
-              <div>
-                <p>FULLY CONNECTED!</p>
-                <button onClick={goForwardAnalysis}>Perform Analysis</button>
-              </div>
-            ) : (
-              <div>
-              {connection === 2 ? (
-                <p>SOME LOADING THING HERE</p>
+          <ThemeProvider theme={theme}>
+            <Box 
+              minHeight="98vh"
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Typography variant="h7">
+                <Box sx={{ letterSpacing: 3, pb: 2, pr: 3, pl: 3}} maxWidth="50vh">{status}</Box>
+              </Typography>
+              {connection === 1 ? (
+                <></>
               ) : (
-                <button onClick={restartConnect}>Retry Connection</button>
+                <Box sx={{ p: 3, pb: 10 }}>
+                  {connection === 2 ? (
+                    <CircularProgress color="primary" />
+                  ) : (
+                    <Button
+                      variant="contained" 
+                      onClick={restartConnect} 
+                      startIcon={<ReplayIcon />}
+                      >Retry
+                    </Button>
+                  )}
+                </Box>
               )}
-              </div>
-            )}
-            <div></div>
-            <button onClick={goBackLanding}>Go Back!</button>
-          </div>
+              <Fab 
+                size="medium" 
+                color="primary" 
+                aria-label="add"
+                onClick={goBackLanding}
+                ><KeyboardReturnIcon />
+              </Fab>
+            </Box>
+          </ThemeProvider>
         ) : (
           <></>
         )}
