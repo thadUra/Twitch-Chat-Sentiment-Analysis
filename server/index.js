@@ -27,8 +27,6 @@ const io = new Server(server, {
   },
 });
 
-var client = null;
-
 /* Web Socket Functionality */
 io.on("connection", (socket) => {
 
@@ -105,7 +103,11 @@ io.on("connection", (socket) => {
    */
   socket.on("disconnect", (reason) => {
     console.log(`Socket ${socket.id} disconnected: ${reason}`);
-    if( client.readyState() !== "CLOSED" || client.readyState() !== "CLOSING" ) client.disconnect();
+    client.disconnect().then(() => {
+      console.log(`Twitch client disconnected`);
+    }).catch( (err) => {
+      console.log(`Failed to disconnect from twitch client: ${err}`);
+    });
     msgCount = 0;
   });
 

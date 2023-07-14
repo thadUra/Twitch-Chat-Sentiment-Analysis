@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 function Landing ( {
     isActive,
@@ -19,9 +22,9 @@ function Landing ( {
       <div>
         {isActive ? (
           <div>
-            <h1>Streamer Sentiment</h1>
-            <input onKeyDown={ (e) => { if( e.key === 'Enter' ) analyze(); }} type="text" placeholder="Streamer" value={streamer} onChange={ (e) => setStreamer(e.target.value)} />
-            <button onClick={analyze}> Analyze </button>
+            <Typography variant="h2" gutterBottom>Streamer Sentiment</Typography>
+            <TextField variant="outlined" onKeyDown={ (e) => { if( e.key === 'Enter' ) analyze(); }} type="text" placeholder="Streamer" value={streamer} onChange={ (e) => setStreamer(e.target.value)} />
+            <Button onClick={analyze} variant="contained"> Analyze </Button>
           </div>
         ) : (
           <></>
