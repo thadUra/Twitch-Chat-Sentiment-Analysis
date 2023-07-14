@@ -11,7 +11,6 @@ const cors = require("cors");
 const app = express();
 const http = require("http");
 const { Server } = require("socket.io");
-const chat = require("./chat.js")
 const google = require('./googleAnalyze.js')
 const tmi = require('tmi.js');
 

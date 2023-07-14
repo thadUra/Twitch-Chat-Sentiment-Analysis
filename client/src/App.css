@@ -1,5 +1,11 @@
+@font-face {
+  font-family: Sora;
+  src: url(Sora-Regular.ttf);
+}
+
 .App {
   text-align: center;
+  font-family: Sora;
 }
 
 .App-logo {
