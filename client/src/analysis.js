@@ -99,7 +99,7 @@ function Analysis ( {
                 <Box
                   width={{ md: 300, sm: 200, xs: 150}}
                   height={{ md: 350, sm: 300, xs: 200}}
-                  sx={{ letterSpacing: 4, p: 5, borderRadius: 2, borderTop: 6, borderColor: "#808080"}}
+                  sx={{ letterSpacing: 4, p: 5, borderRadius: 2, borderTop: 12, borderColor: "#e6e6e6"}}
                   bgcolor="#0e0c13"
                 >
                   Chat here
