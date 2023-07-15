@@ -30,6 +30,7 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
 
   var msgCount = 0;
+  var sentiment = 50;
   console.log(`User ${socket.id} connected...`);
   const client = new tmi.Client({
     connection: {
@@ -61,21 +62,33 @@ io.on("connection", (socket) => {
      *  @usage Grab twitch chat message and send it to sentiment APIs
      */
     client.on("message", (_channel, tags, message, _self) => {
-      // console.log(`${msgCount++} ==> ${tags['display-name']}: ${message}`);
+      msgCount += 1;
+      let tempCount = msgCount; // to prevent concurrent calls
       var data = {
-        count: msgCount,
+        count: tempCount,
         msg: message
       }
-      msgCount += 1;
       socket.emit("new_msg", data);
-      google.sentiment(message);
-      //amazon.sentiment(message);
-      // data = {
-      //   google: 
-      //   amazon:
-      //   combined:
-      // }
-      // socket.emit("new_sentiment", data);
+      (async () => {
+        let ret = await google.sentiment(message);
+
+        // Calculation for sentiment here
+        let raw = Math.round(ret.score * 10);
+        let mag = raw * Math.round(ret.magnitude * 100) / 100;
+        let multiplier = (-0.74 * Math.log10( (10 * (Math.abs(sentiment - 50))) + 10 )) + 2;
+        let change = multiplier * mag;
+        // console.log(`mag: ${mag}, mul: ${multiplier}, change: ${change}`);
+        sentiment = sentiment + change;
+        console.log(`msg: ${message}`);
+        console.log(`raw: ${raw} -> mag: ${mag} -> mul: ${multiplier} -> chng: ${change} -> sent: ${sentiment}`);
+
+
+        data = {
+          count: tempCount,
+          sentiment: sentiment
+        }
+        socket.emit("new_sentiment", data);
+      })()
     })
 
     /**

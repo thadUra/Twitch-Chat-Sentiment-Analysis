@@ -14,7 +14,8 @@ async function sentiment(msg) {
     };
     const [result] = await client.analyzeSentiment({document});
     const sentiment = result.documentSentiment;
-    console.log(`Score: ${sentiment.score}, Mag: ${sentiment.magnitude}  => chat: ${msg}`);
+    // console.log(`Score: ${sentiment.score}, Mag: ${sentiment.magnitude}  => chat: ${msg}`);
+    return sentiment;
 }
 
 module.exports.sentiment = sentiment;

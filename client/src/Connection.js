@@ -28,12 +28,13 @@ function Connection ( {
      *  1 -> Connected
      *  2 -> Attempting Connection
      */
-    const [ connection, setConection ] = useState(2);
+    const [ connection, setConection ] = useState(0);
     const activeRef = useRef(isActive);
     activeRef.current = isActive;
     
     /* Socket Connection Handlers */
     const connect = () => {
+      setStatus("loading");
       socket.connect();
       if( socket.connected ) {
         console.log(`Socket ${socket.id} connected...`);
@@ -42,6 +43,7 @@ function Connection ( {
       }
       else {
         console.log(`Failed to connect...`);
+        setConection(2);
         retry();
       }
     }
@@ -64,14 +66,14 @@ function Connection ( {
             }
           }
         }
-      }, 2500);
+      }, 2000);
     }
     const disconnect = () => {
       if( socket.connected ) {
         console.log(`Socket ${socket.id} disconnected...`);
         socket.disconnect();
       }
-      setConection(2);
+      setConection(0);
     };
     const restartConnect = () => {
       setStatus("reattempting connection");
@@ -82,14 +84,15 @@ function Connection ( {
 
     /* Directional Render Loading Handlers */
     const goBackLanding = () => {
+      setStatus("loading");
       disconnect();
       reconnectAttempt = 0;
-      setTimeout( () => goBack(), 1000);
+      goBack();
     };
     const goForwardAnalysis = () => performAnalysis(socket);
 
     if( direction === 'landing' && connection === 1 ) goBackLanding();
-    if( isActive && direction === 'analyze' && connection !== 1 && reconnectAttempt < MAX_RECONNECT) connect();
+    if( isActive && direction === 'analyze' && connection !== 1 && connection !== 2 && reconnectAttempt < MAX_RECONNECT) connect();
   
     /* Render */
     return (
