@@ -66,6 +66,7 @@ io.on("connection", (socket) => {
       let tempCount = msgCount; // to prevent concurrent calls
       var data = {
         count: tempCount,
+        user: tags['display-name'],
         msg: message
       }
       socket.emit("new_msg", data);
@@ -87,7 +88,7 @@ io.on("connection", (socket) => {
           count: tempCount,
           sentiment: sentiment
         }
-        socket.emit("new_sentiment", data);
+        // socket.emit("new_sentiment", data);
       })()
     })
 

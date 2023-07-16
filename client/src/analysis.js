@@ -14,9 +14,8 @@ function Analysis ( {
     socket,
     goBack
   }) {
-
     const [ chat, setChat ] = useState([]);
-    const [ msg, setMsg ] = useState('');
+    const [ msg, setMsg ] = useState([]);
     const [ count, setCount ] = useState(0);
     const [ twitch, setTwitch ] = useState(false);
     const [ sentiment, setSentiment ] = useState(50);
@@ -29,15 +28,10 @@ function Analysis ( {
     useEffect(() => {
 
       socket.on("new_msg", (data) => {
-        setMsg(data.msg);
-        if( chat.length !== 0 ) {
-          let newChat = chat.concat({ msg, id:data.count });
-          setChat(newChat);
-        }
-        else {
-          let newChat = [msg];
-          setChat(newChat);
-        }
+        console.log(chat.length);
+        setMsg([data.user, data.msg]);
+        let newChat = chat.concat({ msg, id:data.count });
+        setChat(newChat);
         setCount(count+1);
       });
 
@@ -97,12 +91,26 @@ function Analysis ( {
                   </iframe>
                 </Box>
                 <Box
+                  style={{overflowY: 'scroll'}}
                   width={{ md: 300, sm: 200, xs: 150}}
                   height={{ md: 350, sm: 300, xs: 200}}
-                  sx={{ letterSpacing: 4, p: 5, borderRadius: 2, borderTop: 12, borderColor: "#e6e6e6"}}
+                  sx={{ p: 1, borderRadius: 2, borderTop: 12, borderColor: "#e6e6e6"}}
                   bgcolor="#0e0c13"
+                  display="flex"
+                  flexDirection="column-reverse"
                 >
-                  Chat here
+                  <ul
+                    style={{listStyleType: "none", padding: 0, whiteSpace: "pre-wrap", overflowWrap: "break-word"}}
+                  >
+                    {chat.map((item) => 
+                      <li
+                        style={{ textAlign: "left", color: "#fff", whiteSpace: "pre-wrap", padding: 3}}
+                        key={item.id}
+                        >
+                          <font style={{color: "primary"}}>{item.msg[0]}:</font> {item.msg[1]}
+                      </li>
+                    )}
+                  </ul>
                 </Box>
               </Box>
               <Box
@@ -120,11 +128,6 @@ function Analysis ( {
                 ><KeyboardReturnIcon />
               </Fab>
             </Box>
-            <h1>MSGS BELOW</h1>
-            <p>{socket.id}</p>
-            <button onClick={backToLanding}>Go Back!</button>
-            <p>msgs found: {count}</p>
-            <ul>{chat.map((item) => <li key={item.id}>{item.msg}</li>)}</ul>
           </ThemeProvider>
         ) : (
           <></>
