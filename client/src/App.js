@@ -1,12 +1,12 @@
-import './App.css';
+import './styles/App.css'
 import { useState } from 'react'
 import io from 'socket.io-client'
-import Landing from './Landing.js'
-import Connection from './Connection.js'
-import Analysis from './Analysis.js'
+import Landing from './components/Landing.js'
+import Connection from './components/Connection.js'
+import Analysis from './components/Analysis.js'
 
 function App() {
-  
+
   const [ activePage, setActivePage ] = useState(0);
   const [ streamer, setStreamer ] = useState('');
   const [ direction, setDirection ] = useState('landing');

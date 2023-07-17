@@ -1,13 +1,9 @@
-import { useState } from 'react';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
-import ArrowOutwardSharpIcon from '@mui/icons-material/ArrowOutwardSharp';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from './theme.js'
-import Box from '@mui/material/Box';
-import checkLive from './checkLive.js'
-
+import { useState } from 'react'
+import { TextField, Typography, ThemeProvider, Box } from '@mui/material'
+import LoadingButton from '@mui/lab/LoadingButton'
+import ArrowOutwardSharpIcon from '@mui/icons-material/ArrowOutwardSharp'
+import theme from '../styles/theme.js'
+import checkLive from '../functions/checkLive.js'
 
 function Landing ( {
     isActive,
@@ -62,11 +58,22 @@ function Landing ( {
               alignItems="center"
               justifyContent="center"
             >
-              <Typography variant="h2">
-                <Box sx={{ letterSpacing: 4, pb: 5}}>Streamer Sentiment</Box>
+              <Typography 
+                variant="h2"
+              >
+                <Box 
+                  sx={{ letterSpacing: 4, pb: 5}}
+                >Streamer Sentiment
+                </Box>
               </Typography>
-              <Typography variant="h7">
-                <Box sx={{ letterSpacing: 3, pb: 5, pr: 3, pl: 3}} maxWidth="50vh">Perform sentiment analysis on your favorite Twitch streamer</Box>
+              <Typography 
+                variant="h7"
+              >
+                <Box 
+                  sx={{ letterSpacing: 3, pb: 5, pr: 3, pl: 3}} 
+                  maxWidth="50vh"
+                >Perform sentiment analysis on your favorite Twitch streamer
+                </Box>
               </Typography>
               <Box
                 display="flex"
@@ -74,7 +81,9 @@ function Landing ( {
                 alignItems="center"
                 justifyContent="center"
               >
-                <Box sx={{ pr: 3, pb: 3 }}>
+                <Box 
+                  sx={{ pr: 3, pb: 3 }}
+                >
                   <TextField
                     sx={{width: { xs: 200, md: 350 }}}
                     error={!validate}
@@ -87,7 +96,9 @@ function Landing ( {
                     onChange={ (e) => setStreamer(e.target.value)} 
                   />
                 </Box>
-                <Box sx={{ pr: 3, pb: 3 }}>
+                <Box 
+                  sx={{ pr: 3, pb: 3 }}
+                >
                   <LoadingButton
                     color="primary"
                     onClick={analyze}

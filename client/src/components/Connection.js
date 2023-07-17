@@ -1,14 +1,9 @@
 import { useState, useRef } from 'react'
+import { ThemeProvider, Box, CircularProgress, Button, Fab, Typography } from '@mui/material'
+import ReplayIcon from '@mui/icons-material/Replay'
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn'
+import theme from '../styles/theme.js'
 import 'socket.io-client'
-import { ThemeProvider } from '@mui/material/styles';
-import theme from './theme.js'
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import ReplayIcon from '@mui/icons-material/Replay';
-import Button from '@mui/material/Button';
-import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import Fab from '@mui/material/Fab';
-import Typography from '@mui/material/Typography';
 
 /* MAX ATTEMPTS TO TRY CONNECTING TO WEB SOCKET */
 const MAX_RECONNECT = 5;
@@ -106,13 +101,22 @@ function Connection ( {
               alignItems="center"
               justifyContent="center"
             >
-              <Typography variant="h7">
-                <Box sx={{ letterSpacing: 3, pb: 2, pr: 3, pl: 3}} maxWidth="50vh">{status}</Box>
+              <Typography 
+                variant="h7"
+              >
+                <Box 
+                  sx={{ letterSpacing: 3, pb: 2, pr: 3, pl: 3}} 
+                  maxWidth="50vh"
+                >
+                  {status}
+                </Box>
               </Typography>
               {connection === 1 ? (
                 <></>
               ) : (
-                <Box sx={{ p: 3, pb: 10 }}>
+                <Box 
+                  sx={{ p: 3, pb: 10 }}
+                >
                   {connection === 2 ? (
                     <CircularProgress color="primary" />
                   ) : (

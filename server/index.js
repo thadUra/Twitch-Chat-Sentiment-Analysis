@@ -1,18 +1,14 @@
-//https://devsdash.com/tutorials/twitch-api-javascript
-//https://www.youtube.com/watch?v=djMy4QsPWiI&t=1719s
-// const dotenv = require("dotenv").config();
-// const test = process.env.CLIENT_ID;
-// console.log(test);
-
-
 /* Init dependencies */
 const express = require("express");
 const cors = require("cors");
 const app = express();
 const http = require("http");
 const { Server } = require("socket.io");
-const google = require('./googleAnalyze.js')
 const tmi = require('tmi.js');
+
+/* Sentiment Analysis APIs */
+const google = require('./sentiment/googleAnalyze.js');
+const amzn = require('./sentiment/amznAnalyze.js');
 
 /* Init app and server */
 app.use(cors());
@@ -29,6 +25,7 @@ const io = new Server(server, {
 /* Web Socket Functionality */
 io.on("connection", (socket) => {
 
+  /* Create new tmi.js client for twitch connection */
   console.log(`User ${socket.id} connected...`);
   const client = new tmi.Client({
     connection: {
@@ -55,7 +52,8 @@ io.on("connection", (socket) => {
       console.log(`Error connecting to ${streamer}: ${err}`);
     });
     
-
+    /* Initialize a message count and sentiment levels */
+    var MESSAGE_MAX = 101;
     var msgCount = 0;
     var sentiment = 50;
 
@@ -64,36 +62,40 @@ io.on("connection", (socket) => {
      *  @usage Grab twitch chat message and send it to sentiment APIs
      */
     client.on("message", (_channel, tags, message, _self) => {
-      // Only 100 messages
-      if( msgCount <= 100 ) {
-        let tempCount = msgCount; // to prevent concurrent calls
+      
+      /* Only analyze max amount of messages OR if user is not a bot */
+      if( msgCount <= MESSAGE_MAX && !tags['display-name'].includes("bot") ) {
+
+        /* Prevent race conditions on message count */
+        let tempCount = msgCount;
         msgCount += 1; 
+
+        /* Perform analysis on message */
         (async () => {
-          let ret = await google.sentiment(message);
+          let gglAnalysis = await google.sentiment(message);
+          /* let amznAnalysis = await amzn.sentiment(message); NOT IMPLEMENTED YET */
 
-          // Calculation for sentiment here
-          let raw = Math.round(ret.score * 10);
-          let mag = raw * Math.round(ret.magnitude * 100) / 100;
-          let x = (Math.abs(sentiment - 50));
-          // let multiplier = (-0.74 * Math.log10( (10 * (Math.abs(sentiment - 50))) + 10 )) + 2;
-          // let newMultiplier = (-0.03 * (Math.abs(sentiment - 50))) + 1.5;
-          let multiplier = 0.5 * ((-0.03 * x) - (0.74 * Math.log10((10*x) + 25)) + 3.5);
-          let change = multiplier * mag;
-          // console.log(`mag: ${mag}, mul: ${multiplier}, change: ${change}`);
-          sentiment = sentiment + change;
-          console.log(`score: ${ret.score} => msg: ${message}`);
-          // console.log(`raw: ${raw} -> mag: ${mag} -> mul: ${multiplier} -> chng: ${change} -> sent: ${sentiment}`);
+          /* Continue if not error from sentiment APIs */
+          if( gglAnalysis !== -1 ) {
+            /* Calculation for sentiment here */
+            let raw = Math.round(gglAnalysis.score * 10);
+            let mag = raw * Math.round(gglAnalysis.magnitude * 100) / 100;
+            let x = (Math.abs(sentiment - 50));
+            let multiplier = 0.5 * ((-0.03 * x) - (0.74 * Math.log10((10*x) + 25)) + 3.5);
+            let change = multiplier * mag;
+            sentiment = sentiment + change;
 
-
-          var data = {
-            count: tempCount,
-            user: tags['display-name'],
-            color: tags['color'],
-            msg: message,
-            sentiment: sentiment,
-            raw: ret.score
+            /* Create object to emit for frontend */
+            var data = {
+              count: tempCount,
+              user: tags['display-name'],
+              color: tags['color'],
+              msg: message,
+              sentiment: sentiment,
+              raw: gglAnalysis.score
+            }
+            socket.emit("new_msg", data);
           }
-          socket.emit("new_msg", data);
         })()
       }
     })
@@ -114,7 +116,8 @@ io.on("connection", (socket) => {
       console.log(`${channel} ended the stream.`);
     });
 
-    if( msgCount >= 100) {
+    /* If messages reach limit, disconnect from client  */
+    if( msgCount > MESSAGE_MAX) {
       client.disconnect();
       console.log("Disconnected due to completing analysis");
     }
