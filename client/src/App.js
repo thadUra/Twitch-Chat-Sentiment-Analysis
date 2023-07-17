@@ -11,7 +11,7 @@ function App() {
   const [ streamer, setStreamer ] = useState('');
   const [ direction, setDirection ] = useState('landing');
   const [ socket, setSocket ] = useState(
-    io('http://localhost:3001', {
+    io(`${process.env.REACT_APP_BACKEND}`, {
       autoConnect:false,
       reconnection:false
     })
