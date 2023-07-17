@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import Fab from '@mui/material/Fab';
 import LinearProgress from '@mui/material/LinearProgress';
+import Sentiment from './Sentiment.js';
 
 function Analysis ( {
     isActive,
@@ -16,6 +17,7 @@ function Analysis ( {
   }) {
     const [ chat, setChat ] = useState([]);
     const [ msg, setMsg ] = useState([]);
+
     const [ count, setCount ] = useState(0);
     const [ twitch, setTwitch ] = useState(false);
     const [ sentiment, setSentiment ] = useState(50);
@@ -28,16 +30,15 @@ function Analysis ( {
     useEffect(() => {
 
       socket.on("new_msg", (data) => {
-        console.log(chat.length);
-        setMsg([data.user, data.msg]);
+        // Set chat messages
+        setMsg([data.user, data.msg, data.color, data.raw]);
         let newChat = chat.concat({ msg, id:data.count });
         setChat(newChat);
         setCount(count+1);
-      });
 
-      socket.on("new_sentiment", (data) => {
         setSentiment(data.sentiment);
-      })
+
+      });
 
     }, [socket, chat, count, msg]); 
 
@@ -46,6 +47,18 @@ function Analysis ( {
       setChat([]);
       setCount(0);
       goBack();
+    }
+
+    const determineColor = (raw) => {
+      if( raw < -0.25 ) {
+        return "rgba(255, 0, 0, 0.35)";
+      }
+      else if( raw > 0.25 ) {
+        return "rgba(0, 255, 0, 0.35)";
+      }
+      else {
+        return "rgba(255, 165, 0, 0.35)";
+      }
     }
 
     const embedLink = `https://player.twitch.tv/?channel=${streamer}&parent=localhost`;
@@ -89,6 +102,13 @@ function Analysis ( {
                     style={{border: 0}}
                     allow="fullscreen">
                   </iframe>
+                  <Box
+                    sx={{ p:3 }}
+                    width={{ md: 300, sm: 200, xs: 150}}
+                  >
+                    {Math.round(sentiment)}
+                    <Sentiment sentiment={sentiment}></Sentiment>
+                  </Box>
                 </Box>
                 <Box
                   style={{overflowY: 'scroll'}}
@@ -100,25 +120,29 @@ function Analysis ( {
                   flexDirection="column-reverse"
                 >
                   <ul
-                    style={{listStyleType: "none", padding: 0, whiteSpace: "pre-wrap", overflowWrap: "break-word"}}
+                    style={{listStyleType: "none", padding: 2, whiteSpace: "pre-wrap", overflowWrap: "break-word"}}
                   >
-                    {chat.map((item) => 
+                    {chat.slice(-(chat.length-1)).map((item) => 
                       <li
-                        style={{ textAlign: "left", color: "#fff", whiteSpace: "pre-wrap", padding: 3}}
+                        style={{
+                          textAlign: "left", 
+                          color: "#fff", 
+                          whiteSpace: "pre-wrap", 
+                          padding: 2, 
+                          margin: 4,
+                          backgroundColor: `${determineColor(item.msg[3])}`,
+                          borderRadius: 3,
+                          // backgroundColor: "#00FF00",
+                          // boxShadow: "00 5px 5px rgba(0, 256, 0, 0.8)", 
+                          fontSize: "1.7vh"
+                        }}
                         key={item.id}
                         >
-                          <font style={{color: "primary"}}>{item.msg[0]}:</font> {item.msg[1]}
+                          <font style={{color: `${item.msg[2]}` }}>{item.msg[0]}:</font> {item.msg[1]}
                       </li>
                     )}
                   </ul>
                 </Box>
-              </Box>
-              <Box
-                sx={{ p:3 }}
-                width={{ md: 300, sm: 200, xs: 150}}
-              >
-                {Math.round(sentiment)}
-                <LinearProgress  variant="determinate" value={sentiment} />
               </Box>
               <Fab 
                 size="medium" 

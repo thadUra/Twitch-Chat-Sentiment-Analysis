@@ -29,8 +29,6 @@ const io = new Server(server, {
 /* Web Socket Functionality */
 io.on("connection", (socket) => {
 
-  var msgCount = 0;
-  var sentiment = 50;
   console.log(`User ${socket.id} connected...`);
   const client = new tmi.Client({
     connection: {
@@ -56,40 +54,48 @@ io.on("connection", (socket) => {
     }).catch((err) => {
       console.log(`Error connecting to ${streamer}: ${err}`);
     });
+    
+
+    var msgCount = 0;
+    var sentiment = 50;
 
     /**
      *  RECEIVE: Message
      *  @usage Grab twitch chat message and send it to sentiment APIs
      */
     client.on("message", (_channel, tags, message, _self) => {
-      msgCount += 1;
-      let tempCount = msgCount; // to prevent concurrent calls
-      var data = {
-        count: tempCount,
-        user: tags['display-name'],
-        msg: message
+      // Only 100 messages
+      if( msgCount <= 100 ) {
+        let tempCount = msgCount; // to prevent concurrent calls
+        msgCount += 1; 
+        (async () => {
+          let ret = await google.sentiment(message);
+
+          // Calculation for sentiment here
+          let raw = Math.round(ret.score * 10);
+          let mag = raw * Math.round(ret.magnitude * 100) / 100;
+          let x = (Math.abs(sentiment - 50));
+          // let multiplier = (-0.74 * Math.log10( (10 * (Math.abs(sentiment - 50))) + 10 )) + 2;
+          // let newMultiplier = (-0.03 * (Math.abs(sentiment - 50))) + 1.5;
+          let multiplier = 0.5 * ((-0.03 * x) - (0.74 * Math.log10((10*x) + 25)) + 3.5);
+          let change = multiplier * mag;
+          // console.log(`mag: ${mag}, mul: ${multiplier}, change: ${change}`);
+          sentiment = sentiment + change;
+          console.log(`score: ${ret.score} => msg: ${message}`);
+          // console.log(`raw: ${raw} -> mag: ${mag} -> mul: ${multiplier} -> chng: ${change} -> sent: ${sentiment}`);
+
+
+          var data = {
+            count: tempCount,
+            user: tags['display-name'],
+            color: tags['color'],
+            msg: message,
+            sentiment: sentiment,
+            raw: ret.score
+          }
+          socket.emit("new_msg", data);
+        })()
       }
-      socket.emit("new_msg", data);
-      (async () => {
-        let ret = await google.sentiment(message);
-
-        // Calculation for sentiment here
-        let raw = Math.round(ret.score * 10);
-        let mag = raw * Math.round(ret.magnitude * 100) / 100;
-        let multiplier = (-0.74 * Math.log10( (10 * (Math.abs(sentiment - 50))) + 10 )) + 2;
-        let change = multiplier * mag;
-        // console.log(`mag: ${mag}, mul: ${multiplier}, change: ${change}`);
-        sentiment = sentiment + change;
-        console.log(`msg: ${message}`);
-        console.log(`raw: ${raw} -> mag: ${mag} -> mul: ${multiplier} -> chng: ${change} -> sent: ${sentiment}`);
-
-
-        data = {
-          count: tempCount,
-          sentiment: sentiment
-        }
-        // socket.emit("new_sentiment", data);
-      })()
     })
 
     /**
@@ -107,6 +113,11 @@ io.on("connection", (socket) => {
     client.on("unhost", (channel, _viewers) => {
       console.log(`${channel} ended the stream.`);
     });
+
+    if( msgCount >= 100) {
+      client.disconnect();
+      console.log("Disconnected due to completing analysis");
+    }
 
   });
 
