@@ -10,7 +10,7 @@ const tmi = require('tmi.js');
 
 /* Sentiment Analysis APIs */
 const google = require('./sentiment/googleAnalyze.js');
-const amzn = require('./sentiment/amznAnalyze.js');
+// const amzn = require('./sentiment/amznAnalyze.js');
 
 /* Init app and server */
 const server = http.createServer(app);
