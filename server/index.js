@@ -3,6 +3,7 @@ const dotenv = require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const router = require("./router.js");
 const http = require("http");
 const { Server } = require("socket.io");
 const tmi = require('tmi.js');
@@ -12,16 +13,12 @@ const google = require('./sentiment/googleAnalyze.js');
 const amzn = require('./sentiment/amznAnalyze.js');
 
 /* Init app and server */
+const server = http.createServer(app);
 app.use(cors());
 app.use(express.json());
-const server = http.createServer(app);
-server.listen(3001, () => console.log(`Server is running on port 3001.`));
-const io = new Server(server, {
-  cors: {
-    origin: `${process.env.FRONTEND}`,
-    methods: ["GET", "POST"],
-  },
-});
+app.use(router);
+server.listen(3100, () => console.log(`Server is running on port 3001.`));
+const io = new Server(server);
 
 /* Web Socket Functionality */
 io.on("connection", (socket) => {
