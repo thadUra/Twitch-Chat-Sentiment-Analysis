@@ -16,7 +16,7 @@ This repository contains both the frontend (client) and backend (server) for a w
 
 #### Full Stack Architecture
 
-![Full Stack Architecture](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/Architecture.png)
+![Full Stack Architecture](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/Architecture.jpq)
 
 ##### Frontend
 
@@ -26,9 +26,18 @@ The landing component takes user input on what Twitch streamer's chat they would
 
 ![Landing Component Demo](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/LandingDemo.gif)
 
-The connection component
+The connection component contains a loading screen while it attempts to establish a web socket connection with the backend. Many of the challenges of implementing this component was keeping track of web sockets per user, disconnecting at random, failing to connect, and closing websockets on disconnect.
 
-The analysis component
+The analysis component contains three main sections: the Twitch stream, the live chat, and a sentiment gauge. The sentiment for each message is highlighted via green for positive, orange for neutral, and red for negative. The purple vertical progress bar indicates how many messages it will analyze, which is 150 messages. This is due to Google Cloud API restrictions. The sentiment gauge provides a numerical value and visual for the current sentiment of the chat.
+
+![Landing Component Demo](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/AnalysisDemo.gif)
+
 
 ##### Backend
 
+The backend contains the bulk of all API and web socket traffic to take the computational load off of the frontend. After a web socket connection is initiated and established by the frontend, the backend will then connect to the Twitch chat client via the tmi.js library.
+
+
+##### Limitations
+
+There exist a couple limitations with this project. First, this web application was not fully deployed. An attempt was made to host the full stack on Netlify (frontend) and Amazon AWS EC2 (backend). However, an SSL certificate was needed to allow the frontend to make HTTPS requests to the backend. Hosting the backend and running the frontend on localhost was as far as I could go in terms of deploying. Second, current language processing APIs such as Google Cloud's Natural Language API or even AWS Comphrened API lack or cannot fully comprehend slang, especially slang utilized on Twitch. Emotes, slang, and other sayings make the sentiment APIs quite unreliable at times.
