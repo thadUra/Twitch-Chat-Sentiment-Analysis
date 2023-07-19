@@ -5,7 +5,7 @@ This project serves to aid both live Twitch streamers and viewers by analyzing o
 1. It can gauge how family friendly / positive and negative a community can be. 
 2. It can provide the streamer a live feedback of how the viewers feel about their content.
 
-This repository contains both the frontend (client) and backend (server) for a web application with a goal of performing sentiment analysis on a live Twitch chat and learning various frameworks and libraries for javascript and full stack development. 
+This repository contains both the frontend (client) and backend (server) for a web application with the goal of performing sentiment analysis on a live Twitch chat and learning various frameworks and libraries for javascript and full stack development. 
 
 #### Various Technologies and Libraries
 1. React (Material UI)
@@ -35,7 +35,7 @@ The analysis component contains three main sections: the Twitch stream, the live
 
 ##### Backend
 
-The backend contains the bulk of all API and web socket traffic to take the computational load off of the frontend. After a web socket connection is initiated and established by the frontend, the backend will then connect to the Twitch chat client via the tmi.js library.
+The backend contains the bulk of all API and web socket traffic to take the computational load off of the frontend. After a web socket connection is initiated and established by the frontend, the backend will then connect to the Twitch chat client via the tmi.js library. Event handlers are utilized to perform any necessary operations whenever a chat message is received by the Twitch chat client. The main operation consists of taking that message, preprocessing it (scraping Twitch message object and filtering bot messages), and sending it to the Sentiment API on Google Cloud. Once that sentiment analysis is provided, it emits a message to the web socket to display on the frontend. 
 
 
 ##### Limitations
