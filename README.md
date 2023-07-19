@@ -47,6 +47,6 @@ $$f(x)=
 
 ![Magnitude Graph](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/multiplier.png "Multiplier Scale")
 
-##### Limitations
+#### Limitations
 
 There exist a couple limitations with this project. First, this web application was not fully deployed. An attempt was made to host the full stack on Netlify (frontend) and Amazon AWS EC2 (backend). However, an SSL certificate was needed to allow the frontend to make HTTPS requests to the backend. Hosting the backend and running the frontend on localhost was as far as I could go in terms of deploying. Second, current language processing APIs such as Google Cloud's Natural Language API or even AWS Comphrened API lack or cannot fully comprehend slang, especially slang utilized on Twitch. Emotes, slang, and other sayings make the sentiment APIs quite unreliable at times.
