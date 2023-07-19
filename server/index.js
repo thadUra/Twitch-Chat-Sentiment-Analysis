@@ -56,7 +56,7 @@ io.on("connection", (socket) => {
     });
     
     /* Initialize a message count and sentiment levels */
-    var MESSAGE_MAX = 101;
+    var MESSAGE_MAX = 201;
     var msgCount = 0;
     var sentiment = 50;
 
