@@ -45,7 +45,7 @@ $$f(x)=
 -0.015x-0.37\log\left(10x-475\right)+2.5 \hspace{0.74cm}\text{ if } 50 \le x \le 100
 \end{cases}$$
 
-![Magnitude Graph](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/magnitude.png "Multiplier Scale")
+![Magnitude Graph](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/multiplier.png "Multiplier Scale")
 
 ##### Limitations
 
