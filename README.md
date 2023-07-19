@@ -11,4 +11,4 @@ This repository contains both the frontend and backend for a webapp with a goal 
 
 #### Full Stack Architecture
 
-![image][Full Stack Architecture](./StackArchitecture.png)
+![image][Full Stack Architecture](StackArchitecture.png)
