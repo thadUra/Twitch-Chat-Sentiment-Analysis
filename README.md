@@ -16,7 +16,7 @@ This repository contains both the frontend (client) and backend (server) for a w
 
 #### Full Stack Architecture
 
-![Full Stack Architecture](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/Architecture.jpq)
+![Full Stack Architecture](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/Architecture.jpg)
 
 ##### Frontend
 
