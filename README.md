@@ -37,6 +37,15 @@ The analysis component contains three main sections: the Twitch stream, the live
 
 The backend contains the bulk of all API and web socket traffic to take the computational load off of the frontend. After a web socket connection is initiated and established by the frontend, the backend will then connect to the Twitch chat client via the tmi.js library. Event handlers are utilized to perform any necessary operations whenever a chat message is received by the Twitch chat client. The main operation consists of taking that message, preprocessing it (scraping Twitch message object and filtering bot messages), and sending it to the Sentiment API on Google Cloud. Once that sentiment analysis is provided, it emits a message to the web socket to display on the frontend. 
 
+The total sentiment score is calculated through utilizing both the sentiment and magnitude of sentiment provided by the API. The higher the magnitude, the higher the percent change the sentiment score will have on the total score. Once the raw percent change is calculated, a multiplier calculates the final percent change. The equation for the multiplier is shown below, where x is the current sentiment score. This the raw percent change is multiplier by this multiplier and added onto the total sentiment score.
+
+$$f(x)= 
+\begin{cases}
+0.015x-0.37\log\left(-10x+525\right)+1 \hspace{1cm}\text{ if } 0 \le x \lt 50\\
+-0.015x-0.37\log\left(10x-475\right)+2.5 \hspace{0.74cm}\text{ if } 50 \le x \le 100
+\end{cases}$$
+
+![Magnitude Graph](https://raw.githubusercontent.com/thadUra/Twitch-Chat-Sentiment-Analysis/main/img/magnitude.png "Multiplier Scale")
 
 ##### Limitations
 
