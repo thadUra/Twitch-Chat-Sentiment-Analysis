@@ -25,6 +25,10 @@ const io = new Server(server, {
   }
 });
 
+/* Benchmark metrics for backend latency */
+var benchmarkMsgCount = 0;
+var totalLatency = 0;
+
 /* Web Socket Functionality */
 io.on("connection", (socket) => {
 
@@ -65,16 +69,16 @@ io.on("connection", (socket) => {
      *  @usage Grab twitch chat message and send it to sentiment APIs
      */
     client.on("message", (_channel, tags, message, _self) => {
-      
+
       /* Only analyze max amount of messages OR if user is not a bot */
       if( msgCount <= MESSAGE_MAX && !tags['display-name'].includes("bot") ) {
-
         /* Prevent race conditions on message count */
         let tempCount = msgCount;
         msgCount += 1; 
 
         /* Perform analysis on message */
         (async () => {
+          var start = Date.now();
           let gglAnalysis = await google.sentiment(message);
           /* let amznAnalysis = await amzn.sentiment(message); NOT IMPLEMENTED YET */
 
@@ -98,6 +102,10 @@ io.on("connection", (socket) => {
               raw: gglAnalysis.score
             }
             socket.emit("new_msg", data);
+            var end = Date.now();
+            console.log(`msgCount: ${msgCount}: ${end - start}`)
+            totalLatency += end - start
+            benchmarkMsgCount += 1
           }
         })()
       }
@@ -138,6 +146,7 @@ io.on("connection", (socket) => {
     }).catch( (err) => {
       console.log(`Failed to disconnect from twitch client: ${err}`);
     });
+    console.log(`Average backend msg processing latency: ${totalLatency/benchmarkMsgCount}`)
     msgCount = 0;
   });
 
